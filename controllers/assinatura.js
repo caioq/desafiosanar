@@ -181,5 +181,27 @@ exports.patchAlterarCartaoAssinatura = (req, res, next) => {
 }
 
 exports.deleteCancelarAssinatura = (req, res, next) => {
+    //validacao
 
+    // obtem assinatura
+    const assinaturaId = req.body.subscription_id;
+    // apaga assinatura na api mundipagg
+    axios.delete(URL_API + '/subscriptions/' + assinaturaId,
+        {
+            auth: {
+                username: SECRET_KEY,
+                password: ''
+            }
+        }).then(result => {
+            console.log('Assinatura cancelada.');
+            res.status(200).json({
+                message: "Assinatura cancelada.",
+                resultado: result.data
+            });            
+        }).catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 }
