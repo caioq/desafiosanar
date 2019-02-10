@@ -1,12 +1,11 @@
 const axios = require('axios');
 const { validationResult } = require('express-validator/check');
 
+const { URL_API, SECRET_KEY } = require('../util/config');
+
 //const Cliente = require('../models/cliente');
 const Assinatura = require('../models/assinatura');
 
-const URL_API = 'https://api.mundipagg.com/core/v1';
-const SECRET_KEY = 'sk_test_RYwm6wBcMjt387nb';
-const PUBLIC_KEY = 'pk_test_zD9Jq9IoaSx1JVOk';
 
 exports.postCriarAssinatura = (req, res, next) => {
     // Validacao dos dados
@@ -88,48 +87,14 @@ exports.postCriarAssinatura = (req, res, next) => {
                         email: result.data.customer.email
                     }
                 });
-                assinatura.save().then(result => {
-                    console.log("Assinatura finalizada.");
-                    res.status(200).json({
-                        message: "Assinatura criada.",
-                        resultado: result
-                    });
-                }).catch(err => {
-                    console.log(err);
-                });
-            })
-            /*
-            axios.post(URL_API + '/customers',
-                {
-                    name: nomeCliente,
-                    email: emailCliente,
-                    type: "individual"
-                }, {
-                    auth: {
-                        username: SECRET_KEY,
-                        password: ''
-                    }
+                return assinatura.save();
+            }).then(result => {
+                console.log("Assinatura finalizada.");
+                res.status(200).json({
+                    message: "Assinatura criada.",
+                    resultado: result
                 })
-                .then(result => {
-                    console.log("Novo cliente criado!");
-                    console.log(result);
-                    
-                    return result.data
-                })
-                .then(cliente => {
-                    // criar assinatura
-                    axios.post(URL_API + '/subscriptions',
-                        {
- 
-                        }, {
-                            auth: {
-                                username: SECRET_KEY,
-                                password: ''
-                            }
-                        });
- 
-                }) */
-            .catch(err => {
+            }).catch(err => {
                 if (!err.statusCode) {
                     err.statusCode = 500;
                 }
@@ -197,7 +162,7 @@ exports.deleteCancelarAssinatura = (req, res, next) => {
             res.status(200).json({
                 message: "Assinatura cancelada.",
                 resultado: result.data
-            });            
+            });
         }).catch(err => {
             if (!err.statusCode) {
                 err.statusCode = 500;

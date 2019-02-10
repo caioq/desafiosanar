@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const assinaturaRoutes = require('./routes/assinatura');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
   });
 
   app.use('/assinatura', assinaturaRoutes);
+  app.use('/auth', authRoutes);
 
   app.use((error, req, res, next) => {
     console.log(error);
