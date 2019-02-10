@@ -3,7 +3,6 @@ const { validationResult } = require('express-validator/check');
 
 const { URL_API, SECRET_KEY } = require('../util/config');
 
-//const Cliente = require('../models/cliente');
 const Assinatura = require('../models/assinatura');
 
 
@@ -15,92 +14,103 @@ exports.postCriarAssinatura = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
+
     // obtem dados do cartao
     const nomeCartao = req.body.cartao.nome_cartao;
     const numeroCartao = req.body.cartao.numero;
     const expiracaoMes = req.body.cartao.expiracao_mes;
     const expiracaoAno = req.body.cartao.expiracao_ano;
     const cvv = req.body.cartao.cvv;
-    // obtem produtos adquiridos -> procurar se ha plano adquirido
-    const produtos = req.body.produtos;
-    const plano = produtos.find(produto => produto.tipo === 'plano');
+
+    // obtem id do plano - solucao alternativa consultar banco de integracao para obter id do plano
+    const plano = req.params.plano;
+    let planoId;
+    switch (plano) {
+        case 'plano-mensal':
+            planoId = 'plan_zrQaY0V2uNuPyP2O';
+            break;
+        case 'plano-mensal-7':
+            planoId = 'plan_m6GgzM6tAS30qAv8';
+            break;
+        case 'plano-mensal-yellowbook':
+            planoId = 'plan_9kenwG3H94fXnLEw';
+            break;
+    }
+    if (!planoId) {
+        const error = new Error('Plano inválido.');
+        error.statusCode = 422;
+        throw error;
+    }
+
     // monta objeto para envio
     const dados = {
-        plan_id: plano.plano_id,
+        plan_id: planoId,
         payment_method: "credit_card",
         card: {
             number: numeroCartao,
             holder_name: nomeCartao,
             exp_month: expiracaoMes,
             exp_year: expiracaoAno,
-            cvv: cvv,
-            brand: "Mastercard"
+            cvv: cvv
         }
     };
+
+    // verifica se o cliente é novo
     let cliente = null;
     let clienteId;
-    if (plano) {
-        // verifica se o cliente é novo
-        if (req.body.cliente_id) {
-            // cliente já possui cadastro
-            console.log('Cliente já possui cadastro');
-            // obtem cliente id
-            clienteId = req.body.cliente_id;
-        } else {
-            // cliente novo
-            // obtem dados do cliente
-            const nomeCliente = req.body.cliente.nome;
-            const emailCliente = req.body.cliente.email;
-            cliente = {
-                name: nomeCliente,
-                email: emailCliente
-            };
-        }
-        console.log(dados);
-        // criar assinatura
-        axios.post(URL_API + '/subscriptions',
-            {
-                plan_id: plano.plano_id,
-                payment_method: "credit_card",
-                card: {
-                    number: numeroCartao,
-                    holder_name: nomeCartao,
-                    exp_month: expiracaoMes,
-                    exp_year: expiracaoAno,
-                    cvv: cvv
-                },
-                customer: cliente,
-                customer_id: clienteId
-            }, {
-                auth: {
-                    username: SECRET_KEY,
-                    password: ''
-                }
-            }).then(result => {
-                console.log("Assinatura criada no mundipagg.");
-                //console.log(result);
-                const assinatura = new Assinatura({
-                    subscription: result.data.id,
-                    plano: result.data.plan.id,
-                    cliente: {
-                        customer_id: result.data.customer.id,
-                        email: result.data.customer.email
-                    }
-                });
-                return assinatura.save();
-            }).then(result => {
-                console.log("Assinatura finalizada.");
-                res.status(200).json({
-                    message: "Assinatura criada.",
-                    resultado: result
-                })
-            }).catch(err => {
-                if (!err.statusCode) {
-                    err.statusCode = 500;
-                }
-                next(err);
-            });
+    if (req.body.cliente_id) {
+        // cliente já possui cadastro
+        console.log('Cliente já possui cadastro');
+        // obtem cliente id
+        clienteId = req.body.cliente_id;
+    } else {
+        // cliente novo
+        // obtem dados do cliente
+        const nomeCliente = req.body.cliente.nome;
+        const emailCliente = req.body.cliente.email;
+        cliente = {
+            name: nomeCliente,
+            email: emailCliente
+        };
     }
+    //console.log(dados);
+
+    // criar assinatura
+    axios.post(URL_API + '/subscriptions',
+        {
+            ...dados,
+            customer: cliente,
+            customer_id: clienteId
+        }, {
+            auth: {
+                username: SECRET_KEY,
+                password: ''
+            }
+        }).then(result => {
+            console.log("Assinatura criada no mundipagg.");
+            //console.log(result);
+            const assinatura = new Assinatura({
+                subscription: result.data.id,
+                plano: result.data.plan.id,
+                cliente: {
+                    customer_id: result.data.customer.id,
+                    email: result.data.customer.email
+                }
+            });
+            return assinatura.save();
+        }).then(result => {
+            console.log("Assinatura finalizada.");
+            res.status(200).json({
+                message: "Assinatura criada.",
+                resultado: result
+            })
+        }).catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+
 }
 
 exports.patchAlterarCartaoAssinatura = (req, res, next) => {

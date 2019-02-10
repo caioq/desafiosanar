@@ -6,8 +6,8 @@ const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-// POST /assinatura/criar-assinatura
-router.post('/criar-assinatura', isAuth, [
+// POST /assinatura/:plano
+router.post('/:plano', isAuth, [
     //body('cliente.nome').trim().not().isEmpty(),
     //body('cliente.email').isEmail().normalizeEmail()
 ],assinaturaController.postCriarAssinatura);
