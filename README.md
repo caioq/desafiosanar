@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-O desafio foi realizado usando NodeJS. Para esta solução não foi utilizado banco de dados, porém seria uma alternativa para obtenção dos campos ID dos planos.
+O desafio foi realizado usando NodeJS. Para esta solução não foi utilizado banco de dados, porém seria uma alternativa para obtenção do campo ID dos planos.
 
 ### Instalando
 
@@ -10,6 +10,12 @@ Extrair o arquivo e executar o comando
 
 ```
 npm install
+```
+
+### Iniciando
+
+```
+npm run start-server
 ```
 
 ## Testando

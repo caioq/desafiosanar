@@ -91,23 +91,13 @@ exports.postCriarAssinatura = (req, res, next) => {
             }
         }).then(result => {
             console.log("Assinatura criada no mundipagg.");
-            //console.log(result);
-            const assinatura = new Assinatura({
-                subscription: result.data.id,
-                plano: result.data.plan.id,
-                cliente: {
-                    customer_id: result.data.customer.id,
-                    email: result.data.customer.email
-                }
-            });
-            return assinatura.save();
-        }).then(result => {
-            console.log("Assinatura finalizada.");
+        
             res.status(200).json({
                 message: "Assinatura criada.",
-                resultado: result
-            })
-        }).catch(err => {
+                resultado: result.data
+            });
+        }) 
+        .catch(err => {
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
@@ -116,8 +106,14 @@ exports.postCriarAssinatura = (req, res, next) => {
 
 }
 
-exports.patchAlterarCartaoAssinatura = (req, res, next) => {
+exports.patchAlterarCartaoAssinatura = async (req, res, next) => {
     // validacao
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new Error('Falha na validação. Dados incorretos ou incompletos.');
+        error.statusCode = 422;
+        throw error;
+    }
 
     // obtem assinatura
     const assinaturaId = req.body.subscription_id;
@@ -127,6 +123,15 @@ exports.patchAlterarCartaoAssinatura = (req, res, next) => {
     const expiracaoMes = req.body.cartao.expiracao_mes;
     const expiracaoAno = req.body.cartao.expiracao_ano;
     const cvv = req.body.cartao.cvv;
+
+    const assinatura = await axios.get(URL_API + '/subscriptions/' + assinaturaId, {
+        auth: {
+            username: SECRET_KEY,
+            password: ''
+        }
+    });
+    
+    if(assinatura.data.status === "canceled") return res.status(400).json({message: "Assinatura cancelada."});
 
     // altera cartao na api do mundipagg
     axios.patch(URL_API + '/subscriptions/' + assinaturaId + '/card',
@@ -160,7 +165,13 @@ exports.patchAlterarCartaoAssinatura = (req, res, next) => {
 
 exports.deleteCancelarAssinatura = (req, res, next) => {
     //validacao
-
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new Error('Falha na validação. Dados incorretos ou incompletos.');
+        error.statusCode = 422;
+        throw error;
+    }
+    
     // obtem assinatura
     const assinaturaId = req.body.subscription_id;
     // apaga assinatura na api mundipagg
