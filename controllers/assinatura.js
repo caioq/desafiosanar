@@ -32,6 +32,9 @@ exports.postCriarAssinatura = (req, res, next) => {
         case 'plano-mensal-7':
             planoId = 'plan_m6GgzM6tAS30qAv8';
             break;
+        case 'plano-trimestral':
+            planoId = 'plan_bjRQn6MI6NUM7JmM';
+            break;
         case 'plano-mensal-yellowbook':
             planoId = 'plan_9kenwG3H94fXnLEw';
             break;
