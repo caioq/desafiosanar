@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-O desafio foi realizado usando NodeJS. Para esta solução não foi utilizado banco de dados, porém seria uma alternativa para obtenção do campo ID dos planos.
+O desafio foi realizado usando NodeJS. Para esta solução não foi utilizado banco de dados, porém seria uma alternativa para obtenção do campo ID dos planos e/ou da relação de assinaturas, cliente e plano .
 
 ### Instalando
 

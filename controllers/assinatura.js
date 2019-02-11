@@ -130,7 +130,7 @@ exports.patchAlterarCartaoAssinatura = async (req, res, next) => {
             password: ''
         }
     });
-    
+    // verifica se a assinatura deste cartao esta ativo
     if(assinatura.data.status === "canceled") return res.status(400).json({message: "Assinatura cancelada."});
 
     // altera cartao na api do mundipagg
