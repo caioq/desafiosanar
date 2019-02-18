@@ -100,7 +100,7 @@ Trimestral
   "nome": "Trimestral",
   "intervalo": "month",
   "quantidade_intervalo": 3,
-  "preco_minimo": 6990,
+  "preco_minimo": 2330,
   "dias_trial": 0,
   "modo_pagamento":["credit_card","boleto"],
   "items": [

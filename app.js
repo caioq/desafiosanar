@@ -5,6 +5,7 @@ const app = express();
 
 require('./startup/router')(app);
 
+mongoose.set('useCreateIndex', true);
 mongoose.connect('mongodb+srv://sanar:LiIQgOHa8QbEDtiO@cluster0-f7akh.mongodb.net/sanar?retryWrites=true', { useNewUrlParser: true })
     .then(result => {
         console.log('Conected!');

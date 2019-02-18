@@ -63,11 +63,17 @@ exports.postCriarPlano = (req, res, next) => {
                 url: result.data.metadata.id,
                 planId: result.data.id
             })
-            return plano.save();
-        }).then(result => {
-            res.status(200).json({
-                message: "Plano criado.",
-                result: result
+            // insere plano no banco de dados local
+            return plano.save(function (err, result) {
+                if (err) {
+                    if (err.name === 'MongoError' && err.code === 11000) {
+                        return res.status(400).json({message: "Plano já existente"});
+                    }
+                } 
+                return res.status(200).json({
+                    message: "Plano criado.",
+                    result: result
+                })
             });
         }).catch(err => {
             if (!err.statusCode) {

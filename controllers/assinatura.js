@@ -4,9 +4,10 @@ const { validationResult } = require('express-validator/check');
 const { URL_API, SECRET_KEY } = require('../util/config');
 
 const Assinatura = require('../models/assinatura');
+const Plano = require('../models/plano');
 
 
-exports.postCriarAssinatura = (req, res, next) => {
+exports.postCriarAssinatura = async (req, res, next) => {
     // Validacao dos dados
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -22,32 +23,17 @@ exports.postCriarAssinatura = (req, res, next) => {
     const expiracaoAno = req.body.cartao.expiracao_ano;
     const cvv = req.body.cartao.cvv;
 
-    // obtem id do plano - solucao alternativa consultar banco de integracao para obter id do plano
-    const plano = req.params.plano;
-    let planoId;
-    switch (plano) {
-        case 'plano-mensal':
-            planoId = 'plan_zrQaY0V2uNuPyP2O';
-            break;
-        case 'plano-mensal-7':
-            planoId = 'plan_m6GgzM6tAS30qAv8';
-            break;
-        case 'plano-trimestral':
-            planoId = 'plan_bjRQn6MI6NUM7JmM';
-            break;
-        case 'plano-mensal-yellowbook':
-            planoId = 'plan_9kenwG3H94fXnLEw';
-            break;
-    }
-    if (!planoId) {
-        const error = new Error('Plano inválido.');
-        error.statusCode = 422;
-        throw error;
+    // obtem id do plano
+    const planoUrl = req.params.plano;
+    const plano = await Plano.findOne({ url: planoUrl });
+
+    if (!plano) {
+        return res.status(400).json({ message: "Plano não encontrado." });
     }
 
     // monta objeto para envio
     const dados = {
-        plan_id: planoId,
+        plan_id: plano.planId,
         payment_method: "credit_card",
         card: {
             number: numeroCartao,
@@ -76,7 +62,6 @@ exports.postCriarAssinatura = (req, res, next) => {
             email: emailCliente
         };
     }
-    //console.log(dados);
 
     // criar assinatura
     axios.post(URL_API + '/subscriptions',
@@ -91,12 +76,12 @@ exports.postCriarAssinatura = (req, res, next) => {
             }
         }).then(result => {
             console.log("Assinatura criada no mundipagg.");
-        
+
             res.status(200).json({
                 message: "Assinatura criada.",
                 resultado: result.data
             });
-        }) 
+        })
         .catch(err => {
             if (!err.statusCode) {
                 err.statusCode = 500;
@@ -131,7 +116,7 @@ exports.patchAlterarCartaoAssinatura = async (req, res, next) => {
         }
     });
     // verifica se a assinatura deste cartao esta ativo
-    if(assinatura.data.status === "canceled") return res.status(400).json({message: "Assinatura cancelada."});
+    if (assinatura.data.status === "canceled") return res.status(400).json({ message: "Assinatura cancelada." });
 
     // altera cartao na api do mundipagg
     axios.patch(URL_API + '/subscriptions/' + assinaturaId + '/card',
@@ -171,7 +156,7 @@ exports.deleteCancelarAssinatura = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    
+
     // obtem assinatura
     const assinaturaId = req.body.subscription_id;
     // apaga assinatura na api mundipagg
