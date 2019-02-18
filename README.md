@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-O desafio foi realizado usando NodeJS. Para esta solução não foi utilizado banco de dados, porém seria uma alternativa para obtenção do campo ID dos planos e/ou da relação de assinaturas, cliente e plano .
+O desafio foi realizado usando NodeJS.
 
 ### Instalando
 
@@ -39,6 +39,109 @@ Ao completar esta operação deve copiar o token retornado.
 Este token deverá ser usado no header dos próximos métodos:
 ```
 Authorization: Bearer token 
+```
+
+### Criando os planos
+
+Inicialmente deve ser criado os planos: Mensal, Mensal + 7 dias trial, Trimestral e Mensal + Livro Yellowbook 
+Para criar os planos deve ser executado respectivamente os seguintes requests POSTS
+
+```
+http://localhost:3000/plano
+```
+
+Plano Mensal
+```
+{
+  "nome": "Mensal",
+  "intervalo": "month",
+  "quantidade_intervalo": 1,
+  "preco_minimo": 2450,
+  "dias_trial": 0,
+  "modo_pagamento":["credit_card","boleto"],
+  "items": [
+    {
+      "nome": "Sanarflix",
+      "quantidade": 1,
+      "preco": 2450
+    }
+  ],
+  "metadata": {
+    "id": "plano-mensal"
+  }
+}
+```
+
+Mensal + 7 dias Trial
+```
+{
+  "nome": "Mensal + 7 dias trial",
+  "intervalo": "month",
+  "quantidade_intervalo": 1,
+  "preco_minimo": 2450,
+  "dias_trial": 7,
+  "modo_pagamento":["credit_card","boleto"],
+  "items": [
+    {
+      "nome": "Sanarflix",
+      "quantidade": 1,
+      "preco": 2450
+    }
+  ],
+  "metadata": {
+    "id": "plano-mensal-7"
+  }
+}
+```
+
+Trimestral
+```
+{
+  "nome": "Trimestral",
+  "intervalo": "month",
+  "quantidade_intervalo": 3,
+  "preco_minimo": 6990,
+  "dias_trial": 0,
+  "modo_pagamento":["credit_card","boleto"],
+  "items": [
+    {
+      "nome": "Sanarflix",
+      "quantidade": 1,
+      "preco": 6990
+    }
+  ],
+  "metadata": {
+    "id": "plano-trimestral"
+  }
+}
+```
+
+Mensal + Livro Yellowbook
+```
+{
+  "nome": "Mensal + Livro Yellowbook",
+  "intervalo": "month",
+  "quantidade_intervalo": 1,
+  "preco_minimo": 2450,
+  "dias_trial": 0,
+  "modo_pagamento":["credit_card","boleto"],
+  "items": [
+    {
+      "nome": "Sanarflix",
+      "quantidade": 1,
+      "preco": 2450
+    },
+    {
+      "nome": "Yellowbook",
+      "quantidade": 1,
+      "ciclos": 1,
+      "preco": 13990
+    }
+  ],
+  "metadata": {
+    "id": "plano-mensal-yellowbook"
+  }
+}
 ```
 
 ### Caso 1

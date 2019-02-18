@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 
 const assinaturaRoutes = require('../routes/assinatura');
+const planoRoutes = require('../routes/plano');
 const authRoutes = require('../routes/auth');
 const error = require('../middleware/error');
 
@@ -16,6 +17,7 @@ module.exports = function (app) {
 
     // Rotas
     app.use('/assinatura', assinaturaRoutes);
+    app.use('/plano', planoRoutes);
     app.use('/auth', authRoutes);
     app.use(error);
 }

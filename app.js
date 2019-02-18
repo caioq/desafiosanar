@@ -5,10 +5,6 @@ const app = express();
 
 require('./startup/router')(app);
 
-app.listen(3000);
-
-// Solucao Alternativa
-/*
 mongoose.connect('mongodb+srv://sanar:LiIQgOHa8QbEDtiO@cluster0-f7akh.mongodb.net/sanar?retryWrites=true', { useNewUrlParser: true })
     .then(result => {
         console.log('Conected!');
@@ -16,4 +12,3 @@ mongoose.connect('mongodb+srv://sanar:LiIQgOHa8QbEDtiO@cluster0-f7akh.mongodb.ne
     }).catch(err => {
         console.log(err);
     })
-*/
