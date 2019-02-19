@@ -10,9 +10,10 @@ exports.postCriarPlano = async (req, res, next) => {
     // Validacao dos dados
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error('Falha na validação. Dados incorretos ou incompletos.');
-        error.statusCode = 422;
-        throw error;
+        return res.status(422).json({ message: "Falha na validação. Dados incorretos ou incompletos." });
+        // const error = new Error('Falha na validação. Dados incorretos ou incompletos.');
+        // error.statusCode = 422;
+        // throw error;
     }
 
     // obtem dados do plano

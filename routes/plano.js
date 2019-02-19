@@ -7,6 +7,9 @@ const isAuth = require('../middleware/is-auth');
 const router = express.Router();
 
 // POST /plano
-router.post('', isAuth, [], planoController.postCriarPlano);
+router.post('', isAuth, [
+    check('nome').isLength({ max: 64 }),
+    check('items').exists(),
+], planoController.postCriarPlano);
 
 module.exports = router;
