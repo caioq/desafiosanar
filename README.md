@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-O desafio foi realizado usando NodeJS.
+O desafio foi realizado usando NodeJS e MongoDB.
 
 ### Instalando
 

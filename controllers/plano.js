@@ -6,7 +6,7 @@ const { URL_API, SECRET_KEY } = require('../util/config');
 const Plano = require('../models/plano');
 
 
-exports.postCriarPlano = (req, res, next) => {
+exports.postCriarPlano = async (req, res, next) => {
     // Validacao dos dados
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -34,51 +34,57 @@ exports.postCriarPlano = (req, res, next) => {
     })
     );
 
-    // monta objeto para envio
-    const dados = {
-        name: nome,
-        currency: "BRL",
-        interval: intervalo,
-        interval_count: quantidadeIntervalo,
-        billing_type: "prepaid",
-        minimum_price: precoMinimo,
-        trial_period_days: (diasTrial === 0 ? null : diasTrial),
-        payment_methods: modoPagamento,
-        items: [...items],
-        metadata: metadata
-    };
+    try {
+        // monta objeto para envio
+        const dados = {
+            name: nome,
+            currency: "BRL",
+            interval: intervalo,
+            interval_count: quantidadeIntervalo,
+            billing_type: "prepaid",
+            minimum_price: precoMinimo,
+            trial_period_days: (diasTrial === 0 ? null : diasTrial),
+            payment_methods: modoPagamento,
+            items: [...items],
+            metadata: metadata
+        };
 
-    // criar plano na mundiPagg
-    axios.post(URL_API + '/plans',
-        {
-            ...dados
-        }, {
-            auth: {
-                username: SECRET_KEY,
-                password: ''
-            }
-        }).then(result => {
-            const plano = new Plano({
-                nome: result.data.name,
-                url: result.data.metadata.id,
-                planId: result.data.id
-            })
-            // insere plano no banco de dados local
-            return plano.save(function (err, result) {
-                if (err) {
-                    if (err.name === 'MongoError' && err.code === 11000) {
-                        return res.status(400).json({message: "Plano já existente"});
-                    }
-                } 
-                return res.status(200).json({
-                    message: "Plano criado.",
-                    result: result
-                })
+        const planoApi = await Plano.findOne({ url: metadata.id })
+        if (planoApi) {
+            return res.status(400).json({ message: "Plano já cadastrado." });
+        }
+
+        // criar plano na mundiPagg
+        const result = await axios.post(URL_API + '/plans',
+            {
+                ...dados
+            }, {
+                auth: {
+                    username: SECRET_KEY,
+                    password: ''
+                }
             });
-        }).catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
+
+        // insere plano no banco de dados local
+        const plano = new Plano({
+            nome: result.data.name,
+            url: result.data.metadata.id,
+            planId: result.data.id
         });
+        await plano.save();
+
+        res.status(200).json({
+            message: "Plano criado.",
+            result: result.data
+        })
+
+    } catch (err) {
+        if (err.name === 'MongoError' && err.code === 11000) {
+            return res.status(400).json({ message: "Plano já existente" });
+        }
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }

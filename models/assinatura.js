@@ -8,8 +8,14 @@ const assinaturaSchema = new Schema({
         required: true
     },
     cliente: {
-        customer_id: String,
-        email: String
+        customerId: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
+        }
     },
     plano: {
         type: String,

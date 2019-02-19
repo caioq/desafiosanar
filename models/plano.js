@@ -9,8 +9,7 @@ const planoSchema = new Schema({
     },
     url: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
     planId: {
         type: String,
